@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useContext } from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import { AppContext } from "./App";
+import { AppContext } from "../App";
 
 const Profile = () => {
   const [isOnboarded, setIsOnboarded] = useContext(AppContext);

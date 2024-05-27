@@ -1,8 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, useAnimatedValue } from "react-native";
 import React, { useContext } from "react";
-import Onboard from "./Onboard";
-import Profile from "./Profile";
+import Onboard from "./screens/Onboard";
+import Profile from "./screens/Profile";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createContext, useState } from "react";
@@ -41,7 +41,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <AppContext.Provider value={[isOnboarded, setIsOnboarded]}>
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           {isOnboarded ? (
             <Stack.Screen name="Profile" component={Profile} />
           ) : (
