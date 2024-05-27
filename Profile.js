@@ -1,7 +1,10 @@
 import { StatusBar } from "expo-status-bar";
+import { useContext } from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
+import { AppContext } from "./App";
 
 const Profile = () => {
+  const [isOnboarded, setIsOnboarded] = useContext(AppContext);
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -12,6 +15,9 @@ const Profile = () => {
           padding: 20,
           borderRadius: 10,
           marginTop: 20,
+        }}
+        onPress={() => {
+          setIsOnboarded(false);
         }}
       >
         <Text>Profile</Text>
