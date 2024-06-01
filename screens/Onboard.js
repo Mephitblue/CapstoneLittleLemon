@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppContext } from "../App";
 import Styles from "../Styles";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,6 +23,12 @@ const Onboard = () => {
   const firstNameRef = useRef();
   const [firstName, setFirstName] = useState("");
   const [firstNameValid, setFirstNameValid] = useState(false);
+
+  const handleOnboarding = () => {
+    storeData(email, firstName, true);
+    getData();
+    setIsOnboarded(true);
+  };
   return (
     <SafeAreaView style={[styles.container]}>
       <View style={[styles.headerArea]}>
@@ -34,7 +41,12 @@ const Onboard = () => {
         />
       </View>
       <View style={[styles.onboardingFormArea, styles.primaryBackgroundColor1]}>
-        <Text style={[styles.sectionTitle, { padding: 20 }]}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            { padding: 20, width: "100%", textAlign: "center" },
+          ]}
+        >
           Let us get to know you
         </Text>
 
@@ -47,7 +59,6 @@ const Onboard = () => {
           onChangeText={(text) => {
             text = text.trim();
             setFirstName(text);
-            console.log(text);
             setFirstNameValid(validateFirstName(text));
           }}
         />
@@ -67,28 +78,32 @@ const Onboard = () => {
       <View style={[styles.onboardingFooterArea]}>
         <Pressable
           title="Next"
-          style={
+          style={({ pressed }) => [
             emailValid && firstNameValid
-              ? [styles.buttonStyle1, styles.buttonStyle1Active]
-              : [styles.buttonStyle1, styles.buttonStyle1Disabled]
-          }
+              ? [
+                  styles.buttonStyle1,
+                  pressed
+                    ? styles.buttonStyle1Clicked
+                    : styles.buttonStyle1Active,
+                ]
+              : [styles.buttonStyle1Disabled, styles.buttonStyle1],
+          ]}
           disabled={!emailValid || !firstNameValid}
           onPress={() => {
-            setIsOnboarded(true);
+            handleOnboarding();
           }}
         >
           <Text
             style={
               emailValid && firstNameValid
-                ? [
-                    styles.leadText,
-                    styles.buttonStyle1Active,
-                    { textAlign: "center" },
-                  ]
+                ? [styles.leadText, { textAlign: "center", width: "80%" }]
                 : [
                     styles.leadText,
                     styles.textDisabledColor,
-                    { textAlign: "center" },
+                    {
+                      textAlign: "center",
+                      width: "80%",
+                    },
                   ]
             }
           >
@@ -98,6 +113,33 @@ const Onboard = () => {
       </View>
     </SafeAreaView>
   );
+};
+
+const storeData = async (email, firstName, OnboardingCompleted) => {
+  try {
+    console.log("Storing Data");
+    console.log(email);
+    console.log(firstName);
+    await AsyncStorage.setItem("email", email);
+    await AsyncStorage.setItem("firstName", firstName);
+    await AsyncStorage.setItem(
+      "isOnboardingCompleted",
+      JSON.stringify(OnboardingCompleted)
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getData = async () => {
+  try {
+    console.log("Getting Data");
+    console.log(await AsyncStorage.getItem("email"));
+    console.log(await AsyncStorage.getItem("firstName"));
+    console.log(await AsyncStorage.getItem("isOnboardingCompleted"));
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 export default Onboard;

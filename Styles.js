@@ -53,12 +53,15 @@ const Styles = StyleSheet.create({
     color: "#333333",
   },
   buttonStyle1Clicked: {
-    backgroundColor: "#EE9972",
+    backgroundColor: "#495E57",
     color: "#EDEFEE",
   },
   buttonStyle1Disabled: {
     backgroundColor: "#EDEFEE",
     color: "#333333",
+  },
+  textPrimaryColor1: {
+    color: "#495E57",
   },
   textDisabledColor: { color: "#999999" },
   inputStyle: {
@@ -81,14 +84,12 @@ const Styles = StyleSheet.create({
   leadText: {
     fontFamily: "Karla_500Medium",
     fontSize: 18,
-    width: "80%",
+
     //fontWeight: "medium",
   },
   sectionTitle: {
     fontFamily: "Karla_800ExtraBold",
     fontSize: 20,
-    width: "100%",
-    textAlign: "center",
     //fontWeight: "extrabold",
   },
   sectionCategory: {
@@ -119,6 +120,11 @@ const Styles = StyleSheet.create({
     width: "100%",
     height: 50,
     padding: 10,
+  },
+  singleCheckboxRow: {
+    flexDirection: "row",
+    justifyContent: "right",
+    marginBottom: 20,
   },
 });
 

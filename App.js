@@ -1,11 +1,12 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, useAnimatedValue } from "react-native";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Onboard from "./screens/Onboard";
 import Profile from "./screens/Profile";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createContext, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import SplashScreen from "./screens/SplashScreen";
 import {
   useFonts,
@@ -34,8 +35,29 @@ export default function App() {
   });
 
   const [isOnboarded, setIsOnboarded] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!fontsLoaded) {
+  const checkIfOnboarded = async () => {
+    try {
+      const onboarded = await AsyncStorage.getItem("isOnboardingCompleted");
+      setIsOnboarded(JSON.parse(onboarded));
+      if (onboarded !== null) {
+        console.log("Onboarded:", JSON.parse(onboarded));
+        setIsOnboarded(JSON.parse(onboarded));
+        setIsLoading(false);
+      }
+    } catch (e) {
+      setIsLoading(false);
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    checkIfOnboarded();
+    //console.log(isOnboardingCompleted);
+  }, []);
+
+  if (!fontsLoaded || isLoading) {
     return <SplashScreen />;
   }
   return (
