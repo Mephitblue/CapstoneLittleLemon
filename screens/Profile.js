@@ -1,7 +1,5 @@
-import { StatusBar } from "expo-status-bar";
 import { useContext, useState, useRef, useEffect } from "react";
 import {
-  StyleSheet,
   Text,
   View,
   Pressable,
@@ -14,7 +12,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Checkbox from "expo-checkbox";
 import { AppContext } from "../App";
 import Styles from "../Styles";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import * as ImagePicker from "expo-image-picker";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const Profile = () => {
   const [isOnboarded, setIsOnboarded] = useContext(AppContext);
@@ -29,6 +28,7 @@ const Profile = () => {
     useState(false);
   const [notificationOffers, setNotificationOffers] = useState(false);
   const [notificationNewsletter, setNotificationNewsletter] = useState(false);
+  const [imageUri, setImageUri] = useState("");
   const orderStatusRef = useRef();
   const passwordChangesRef = useRef();
   const offersRef = useRef();
@@ -43,6 +43,19 @@ const Profile = () => {
   const handleReset = () => {
     resetData();
     setIsOnboarded(false);
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setImageUri(result.assets[0].uri);
+    }
   };
 
   const getProfileData = async () => {
@@ -64,16 +77,8 @@ const Profile = () => {
 
   return (
     <SafeAreaView style={[styles.container]}>
-      <View
-        style={[
-          styles.headerArea,
-          {
-            alignContent: "center",
-            justifyContent: "center",
-            padding: 15,
-          },
-        ]}
-      >
+      <View style={[styles.navigationArea]}>
+        <Ionicons name="arrow-back-circle-sharp" size={70} color="gray" />
         <Image
           title="Logo"
           source={require("../assets/Logo.png")}
@@ -82,18 +87,27 @@ const Profile = () => {
           accessibilityLabel={"Little Lemon Logo"}
           alignItems="center"
         />
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={[styles.navAvitarCircle]} />
+        ) : (
+          <View
+            style={[
+              styles.navAvitarCircle,
+              {
+                backgroundColor: "lightgray",
+                justifyContent: "center",
+                alignItems: "center",
+              },
+            ]}
+          >
+            <Text style={{ fontSize: 20, color: "white" }}>
+              {firstName ? firstName.charAt(0).toUpperCase() : ""}
+              {lastName ? lastName.charAt(0).toUpperCase() : ""}
+            </Text>
+          </View>
+        )}
       </View>
-      <View
-        style={{
-          flex: 1,
-          width: "100%",
-          borderColor: "#333",
-          borderWidth: 1,
-          borderRadius: 16,
-          padding: 20,
-          flexDirection: "column",
-        }}
-      >
+      <View style={[styles.profileInformationArea]}>
         <ScrollView>
           <Text
             style={[
@@ -104,18 +118,80 @@ const Profile = () => {
           >
             Personal Information
           </Text>
+          <View style={styles.profileInfoAvitarSelection}>
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 40,
+                  overflow: "hidden",
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 40,
+                  backgroundColor: "lightgray",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 24, color: "white" }}>
+                  {firstName ? firstName.charAt(0).toUpperCase() : ""}
+                  {lastName ? lastName.charAt(0).toUpperCase() : ""}
+                </Text>
+              </View>
+            )}
+            <Pressable
+              style={({ pressed }) => [
+                [
+                  styles.buttonStyle1,
+                  pressed
+                    ? styles.buttonStyle1Clicked
+                    : styles.buttonStyle1Active,
+                  { width: "30%", justifyContent: "center" },
+                ],
+              ]}
+              onPress={pickImage}
+            >
+              <Text style={[styles.leadText, { textAlign: "center" }]}>
+                Change
+              </Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                [
+                  styles.buttonStyle1,
+                  pressed
+                    ? styles.buttonStyle1Clicked
+                    : styles.buttonStyle1Active,
+                  { width: "30%", justifyContent: "center" },
+                ],
+              ]}
+              onPress={() => {
+                setImageUri(null);
+              }}
+            >
+              <Text
+                style={[
+                  styles.leadText,
+                  {
+                    textAlign: "center",
+                    width: "100%",
+                  },
+                ]}
+              >
+                Remove
+              </Text>
+            </Pressable>
+          </View>
           <Text style={[styles.leadText]}>First Name</Text>
           <TextInput
-            style={[
-              styles.inputStyle,
-              {
-                width: "100%",
-                marginLeft: 0,
-                marginRight: 0,
-                marginBottom: 30,
-                borderColor: "#333",
-              },
-            ]}
+            style={[styles.inputStyle, styles.inputStyleProfileInfo]}
             ref={firstNameRef}
             value={firstName}
             onChangeText={(text) => {
@@ -126,34 +202,16 @@ const Profile = () => {
           />
           <Text style={[styles.leadText]}>Last Name</Text>
           <TextInput
-            style={[
-              styles.inputStyle,
-              {
-                width: "100%",
-                marginLeft: 0,
-                marginRight: 0,
-                marginBottom: 30,
-                borderColor: "#333",
-              },
-            ]}
+            style={[styles.inputStyle, styles.inputStyleProfileInfo]}
             ref={lastNameRef}
             value={lastName}
             onChangeText={(text) => {
-              setLasttName(text);
+              setLastName(text);
             }}
           />
           <Text style={[styles.leadText]}>Email</Text>
           <TextInput
-            style={[
-              styles.inputStyle,
-              {
-                width: "100%",
-                marginLeft: 0,
-                marginRight: 0,
-                marginBottom: 30,
-                borderColor: "#333",
-              },
-            ]}
+            style={[styles.inputStyle, styles.inputStyleProfileInfo]}
             ref={emailRef}
             value={email}
             onChangeText={(text) => {
@@ -164,17 +222,7 @@ const Profile = () => {
           />
           <Text style={[styles.leadText]}>Phone Number</Text>
           <TextInput
-            style={[
-              styles.inputStyle,
-              {
-                width: "100%",
-                padding: 0,
-                marginLeft: 0,
-                marginRight: 0,
-                marginBottom: 30,
-                borderColor: "#333",
-              },
-            ]}
+            style={[styles.inputStyle, styles.inputStyleProfileInfo]}
             ref={phoneNumberRef}
             value={phoneNumber}
             onChangeText={(text) => {
@@ -278,7 +326,7 @@ const Profile = () => {
                   pressed
                     ? styles.buttonStyle1Clicked
                     : styles.buttonStyle1Active,
-                  { width: "40%" },
+                  { width: "35%" },
                 ],
               ]}
               onPress={() => {
@@ -286,7 +334,7 @@ const Profile = () => {
               }}
             >
               <Text style={[styles.leadText, { textAlign: "center" }]}>
-                Logout
+                Discard Changes
               </Text>
             </Pressable>
             <Pressable
@@ -296,7 +344,7 @@ const Profile = () => {
                   pressed
                     ? styles.buttonStyle1Clicked
                     : styles.buttonStyle1Active,
-                  { width: "40%" },
+                  { width: "35%" },
                 ],
               ]}
               onPress={() => {
@@ -309,7 +357,7 @@ const Profile = () => {
                   { textAlign: "center", width: "100%" },
                 ]}
               >
-                Logout
+                Save Changes
               </Text>
             </Pressable>
           </View>
