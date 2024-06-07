@@ -26,7 +26,6 @@ const Onboard = () => {
 
   const handleOnboarding = () => {
     storeData(email, firstName, true);
-    getData();
     setIsOnboarded(true);
   };
   return (
@@ -117,26 +116,12 @@ const Onboard = () => {
 
 const storeData = async (email, firstName, OnboardingCompleted) => {
   try {
-    console.log("Storing Data");
-    console.log(email);
-    console.log(firstName);
     await AsyncStorage.setItem("email", email);
     await AsyncStorage.setItem("firstName", firstName);
     await AsyncStorage.setItem(
       "isOnboardingCompleted",
       JSON.stringify(OnboardingCompleted)
     );
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-const getData = async () => {
-  try {
-    console.log("Getting Data");
-    console.log(await AsyncStorage.getItem("email"));
-    console.log(await AsyncStorage.getItem("firstName"));
-    console.log(await AsyncStorage.getItem("isOnboardingCompleted"));
   } catch (e) {
     console.log(e);
   }

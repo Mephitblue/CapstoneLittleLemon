@@ -89,8 +89,33 @@ const Styles = StyleSheet.create({
     backgroundColor: "#495E57",
     color: "#EDEFEE",
   },
-  buttonStyle1Disabled: {
+  buttonStyle2Active: {
+    backgroundColor: "#495E57",
+    color: "#EDEFEE",
+  },
+  buttonStyle2Clicked: {
+    backgroundColor: "#F4CE14",
+    color: "#333333",
+  },
+  buttonStyle3Active: {
+    backgroundColor: "#495E57",
+    Color: "#EDEFEE",
+  },
+  buttonStyle3Clicked: {
+    backgroundColor: "#F4CE14",
+    color: "#333333",
+  },
+  buttonStyle4Active: {
     backgroundColor: "#EDEFEE",
+    borderColor: "#495E57",
+    color: "#495E57",
+  },
+  buttonStyle4Clicked: {
+    backgroundColor: "#F4CE14",
+    color: "#333333",
+  },
+  buttonStyle1Disabled: {
+    backgroundColor: "#BBB",
     color: "#333333",
   },
   textPrimaryColor1: {

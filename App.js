@@ -43,7 +43,6 @@ export default function App() {
       const onboarded = await AsyncStorage.getItem("isOnboardingCompleted");
       setIsOnboarded(JSON.parse(onboarded));
       if (onboarded !== null) {
-        console.log("Onboarded:", JSON.parse(onboarded));
         setIsOnboarded(JSON.parse(onboarded));
         setIsLoading(false);
       }
@@ -54,7 +53,6 @@ export default function App() {
   };
   useEffect(() => {
     checkIfOnboarded();
-    //console.log(isOnboardingCompleted);
   }, []);
 
   if (!fontsLoaded || isLoading) {

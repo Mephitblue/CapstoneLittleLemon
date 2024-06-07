@@ -14,6 +14,13 @@ import { AppContext } from "../App";
 import Styles from "../Styles";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { MaskedTextInput } from "react-native-mask-text";
+import {
+  validateEmail,
+  validateFirstName,
+  validateLastName,
+  validatePhoneNumber,
+} from "../utils/index.js";
 
 const Profile = () => {
   const [isOnboarded, setIsOnboarded] = useContext(AppContext);
@@ -23,6 +30,8 @@ const Profile = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [emailValid, setEmailValid] = useState(false);
   const [firstNameValid, setFirstNameValid] = useState(false);
+  const [lastNameValid, setLastNameValid] = useState(false);
+  const [phoneNumberValid, setPhoneNumberValid] = useState(false);
   const [notificationOrderStatus, setNotificationOrderStatus] = useState(false);
   const [notificationPasswordChanges, setNotificationPasswordChanges] =
     useState(false);
@@ -64,10 +73,40 @@ const Profile = () => {
       const firstName = await AsyncStorage.getItem("firstName");
       const lastName = await AsyncStorage.getItem("lastName");
       const phoneNumber = await AsyncStorage.getItem("phoneNumber");
+      const notificationOrderStatus = await AsyncStorage.getItem(
+        "notificationOrderStatus"
+      );
+      const notificationPasswordChanges = await AsyncStorage.getItem(
+        "notificationPasswordChanges"
+      );
+      const notificationOffers = await AsyncStorage.getItem(
+        "notificationOffers"
+      );
+      const notificationNewsletter = await AsyncStorage.getItem(
+        "notificationNewsletter"
+      );
+      const imageUri = await AsyncStorage.getItem("imageUri");
       setEmail(email);
+      if (email != null) {
+        setEmailValid(true);
+      }
       setFirstName(firstName);
+      if (firstName != null) {
+        setFirstNameValid(true);
+      }
       setLastName(lastName);
-      phoneNumberRef.current.value = phoneNumber;
+      if (lastName != null) {
+        setLastNameValid(true);
+      }
+      setPhoneNumber(phoneNumber);
+      if (phoneNumber != null) {
+        setPhoneNumberValid(true);
+      }
+      setNotificationOrderStatus(JSON.parse(notificationOrderStatus));
+      setNotificationPasswordChanges(JSON.parse(notificationPasswordChanges));
+      setNotificationOffers(JSON.parse(notificationOffers));
+      setNotificationNewsletter(JSON.parse(notificationNewsletter));
+      setImageUri(imageUri);
     } catch (e) {}
   };
 
@@ -78,7 +117,7 @@ const Profile = () => {
   return (
     <SafeAreaView style={[styles.container]}>
       <View style={[styles.navigationArea]}>
-        <Ionicons name="arrow-back-circle-sharp" size={70} color="gray" />
+        <Ionicons name="arrow-back-circle-sharp" size={60} color="gray" />
         <Image
           title="Logo"
           source={require("../assets/Logo.png")}
@@ -151,14 +190,19 @@ const Profile = () => {
                 [
                   styles.buttonStyle1,
                   pressed
-                    ? styles.buttonStyle1Clicked
-                    : styles.buttonStyle1Active,
+                    ? styles.buttonStyle2Clicked
+                    : styles.buttonStyle2Active,
                   { width: "30%", justifyContent: "center" },
                 ],
               ]}
               onPress={pickImage}
             >
-              <Text style={[styles.leadText, { textAlign: "center" }]}>
+              <Text
+                style={[
+                  styles.leadText,
+                  { textAlign: "center", color: "#EDEFEE" },
+                ]}
+              >
                 Change
               </Text>
             </Pressable>
@@ -167,8 +211,8 @@ const Profile = () => {
                 [
                   styles.buttonStyle1,
                   pressed
-                    ? styles.buttonStyle1Clicked
-                    : styles.buttonStyle1Active,
+                    ? styles.buttonStyle4Clicked
+                    : styles.buttonStyle4Active,
                   { width: "30%", justifyContent: "center" },
                 ],
               ]}
@@ -182,6 +226,7 @@ const Profile = () => {
                   {
                     textAlign: "center",
                     width: "100%",
+                    color: "#495E57",
                   },
                 ]}
               >
@@ -207,6 +252,7 @@ const Profile = () => {
             value={lastName}
             onChangeText={(text) => {
               setLastName(text);
+              setLastNameValid(validateLastName(text));
             }}
           />
           <Text style={[styles.leadText]}>Email</Text>
@@ -221,12 +267,15 @@ const Profile = () => {
             }}
           />
           <Text style={[styles.leadText]}>Phone Number</Text>
-          <TextInput
+          <MaskedTextInput
             style={[styles.inputStyle, styles.inputStyleProfileInfo]}
             ref={phoneNumberRef}
             value={phoneNumber}
-            onChangeText={(text) => {
-              setPhoneNumber(text);
+            mask="(999) 999-9999"
+            keyboardType="numeric"
+            onChangeText={(text, rawText) => {
+              setPhoneNumber(rawText);
+              setPhoneNumberValid(validatePhoneNumber(rawText));
             }}
           />
           <Text
@@ -324,40 +373,70 @@ const Profile = () => {
                 [
                   styles.buttonStyle1,
                   pressed
-                    ? styles.buttonStyle1Clicked
-                    : styles.buttonStyle1Active,
+                    ? styles.buttonStyle4Clicked
+                    : styles.buttonStyle4Active,
                   { width: "35%" },
                 ],
               ]}
               onPress={() => {
-                handleReset();
-              }}
-            >
-              <Text style={[styles.leadText, { textAlign: "center" }]}>
-                Discard Changes
-              </Text>
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [
-                [
-                  styles.buttonStyle1,
-                  pressed
-                    ? styles.buttonStyle1Clicked
-                    : styles.buttonStyle1Active,
-                  { width: "35%" },
-                ],
-              ]}
-              onPress={() => {
-                handleReset();
+                getProfileData();
               }}
             >
               <Text
                 style={[
                   styles.leadText,
-                  { textAlign: "center", width: "100%" },
+                  { textAlign: "center", color: "#495E57" },
                 ]}
               >
-                Save Changes
+                {"Discard\nChanges"}
+              </Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                emailValid &&
+                firstNameValid &&
+                lastNameValid &&
+                phoneNumberValid
+                  ? [
+                      styles.buttonStyle1,
+                      pressed
+                        ? styles.buttonStyle2Clicked
+                        : styles.buttonStyle2Active,
+                      { width: "35%" },
+                    ]
+                  : [
+                      styles.buttonStyle1Disabled,
+                      styles.buttonStyle1,
+                      { width: "35%" },
+                    ],
+              ]}
+              disabled={
+                !emailValid ||
+                !firstNameValid ||
+                !lastNameValid ||
+                !phoneNumberValid
+              }
+              onPress={() => {
+                updateData(
+                  email,
+                  firstName,
+                  lastName,
+                  phoneNumber,
+                  notificationNewsletter,
+                  notificationOffers,
+                  notificationOrderStatus,
+                  notificationPasswordChanges,
+                  imageUri
+                );
+              }}
+            >
+              <Text
+                style={[
+                  styles.leadText,
+                  { textAlign: "center", color: "#EDEFEE" },
+                ]}
+              >
+                {"Save\nChanges"}
               </Text>
             </Pressable>
           </View>
@@ -374,6 +453,59 @@ const resetData = async () => {
     await AsyncStorage.setItem("email", "");
     await AsyncStorage.setItem("firstName", "");
     await AsyncStorage.setItem("isOnboardingCompleted", JSON.stringify(false));
+    await AsyncStorage.setItem("lastName", "");
+    await AsyncStorage.setItem("phoneNumber", "");
+    await AsyncStorage.setItem(
+      "notificationOrderStatus",
+      JSON.stringify(false)
+    );
+    await AsyncStorage.setItem(
+      "notificationPasswordChanges",
+      JSON.stringify(false)
+    );
+    await AsyncStorage.setItem("notificationOffers", JSON.stringify(false));
+    await AsyncStorage.setItem("notificationNewsletter", JSON.stringify(false));
+    await AsyncStorage.setItem("imageUri", "");
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const updateData = async (
+  email,
+  firstName,
+  lastName,
+  phoneNumber,
+  notificationNewsletter,
+  notificationOffers,
+  notificationOrderStatus,
+  notificationPasswordChanges,
+  imageUri
+) => {
+  try {
+    await AsyncStorage.setItem("email", email);
+    await AsyncStorage.setItem("firstName", firstName);
+    await AsyncStorage.setItem("lastName", lastName.trim());
+    await AsyncStorage.setItem("phoneNumber", phoneNumber);
+    await AsyncStorage.setItem(
+      "notificationOrderStatus",
+      JSON.stringify(notificationOrderStatus)
+    );
+    await AsyncStorage.setItem(
+      "notificationPasswordChanges",
+      JSON.stringify(notificationPasswordChanges)
+    );
+    await AsyncStorage.setItem(
+      "notificationOffers",
+      JSON.stringify(notificationOffers)
+    );
+    await AsyncStorage.setItem(
+      "notificationNewsletter",
+      JSON.stringify(notificationNewsletter)
+    );
+    if (imageUri) {
+      await AsyncStorage.setItem("imageUri", imageUri);
+    }
   } catch (e) {
     console.log(e);
   }

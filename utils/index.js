@@ -8,4 +8,17 @@ const validateFirstName = (firstName) => {
   return firstName.length > 0 && firstName.match(/^[A-Za-z]+$/);
 };
 
-export { validateEmail, validateFirstName };
+const validateLastName = (lastName) => {
+  return lastName.length > 0 && lastName.match(/^[A-Za-z' ]+$/);
+};
+
+const validatePhoneNumber = (phoneNumber) => {
+  return phoneNumber.length == 10;
+};
+
+export {
+  validateEmail,
+  validateFirstName,
+  validateLastName,
+  validatePhoneNumber,
+};
