@@ -72,7 +72,13 @@ const Profile = () => {
       const email = await AsyncStorage.getItem("email");
       const firstName = await AsyncStorage.getItem("firstName");
       const lastName = await AsyncStorage.getItem("lastName");
+      if (lastName == null) {
+        setLastName("");
+      }
       const phoneNumber = await AsyncStorage.getItem("phoneNumber");
+      if (phoneNumber == null) {
+        setPhoneNumber("");
+      }
       const notificationOrderStatus = await AsyncStorage.getItem(
         "notificationOrderStatus"
       );
@@ -393,10 +399,7 @@ const Profile = () => {
             </Pressable>
             <Pressable
               style={({ pressed }) => [
-                emailValid &&
-                firstNameValid &&
-                lastNameValid &&
-                phoneNumberValid
+                emailValid && firstNameValid
                   ? [
                       styles.buttonStyle1,
                       pressed
@@ -410,12 +413,7 @@ const Profile = () => {
                       { width: "35%" },
                     ],
               ]}
-              disabled={
-                !emailValid ||
-                !firstNameValid ||
-                !lastNameValid ||
-                !phoneNumberValid
-              }
+              disabled={!emailValid || !firstNameValid}
               onPress={() => {
                 updateData(
                   email,
@@ -485,8 +483,13 @@ const updateData = async (
   try {
     await AsyncStorage.setItem("email", email);
     await AsyncStorage.setItem("firstName", firstName);
-    await AsyncStorage.setItem("lastName", lastName.trim());
-    await AsyncStorage.setItem("phoneNumber", phoneNumber);
+    if (lastName !== null || lastName !== "") {
+      lastName = lastName.trim();
+    }
+    await AsyncStorage.setItem("lastName", lastName);
+    if (phoneNumber !== null) {
+      await AsyncStorage.setItem("phoneNumber", phoneNumber);
+    }
     await AsyncStorage.setItem(
       "notificationOrderStatus",
       JSON.stringify(notificationOrderStatus)
