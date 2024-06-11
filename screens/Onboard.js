@@ -1,13 +1,5 @@
-import { StatusBar } from "expo-status-bar";
 import { useContext, useState, useRef } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  Image,
-  TextInput,
-} from "react-native";
+import { Text, View, Pressable, Image, TextInput } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppContext } from "../App";
 import Styles from "../Styles";

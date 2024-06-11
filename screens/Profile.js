@@ -22,7 +22,7 @@ import {
   validatePhoneNumber,
 } from "../utils/index.js";
 
-const Profile = () => {
+const Profile = ({ navigation }) => {
   const [isOnboarded, setIsOnboarded] = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -123,7 +123,13 @@ const Profile = () => {
   return (
     <SafeAreaView style={[styles.container]}>
       <View style={[styles.navigationArea]}>
-        <Ionicons name="arrow-back-circle-sharp" size={60} color="gray" />
+        <Pressable
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <Ionicons name="arrow-back-circle-sharp" size={60} color="#495E57" />
+        </Pressable>
         <Image
           title="Logo"
           source={require("../assets/Logo.png")}

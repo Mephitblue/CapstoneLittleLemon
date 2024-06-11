@@ -118,8 +118,22 @@ const Styles = StyleSheet.create({
     backgroundColor: "#BBB",
     color: "#333333",
   },
+  buttonStyleMenuCategory: {
+    borderRadius: 16,
+    alignItems: "center",
+    alignContent: "center",
+    padding: 10,
+    margin: 10,
+    backgroundColor: "#bcccc7",
+  },
   textPrimaryColor1: {
     color: "#495E57",
+  },
+  textPrimaryColor2: {
+    color: "#F4CE14",
+  },
+  textPrimaryColor3: {
+    color: "#EDEFEE",
   },
   textDisabledColor: { color: "#999999" },
   inputStyle: {
@@ -139,12 +153,14 @@ const Styles = StyleSheet.create({
     borderColor: "#333",
   },
   displayTitle: {
-    fontFamily: " MarkaziText_500Medium",
+    fontFamily: "MarkaziText_500Medium",
     fontSize: 64,
+    marginBottom: -10,
   },
   subtitle: {
-    fontFamily: " MarkaziText_400Regular",
+    fontFamily: "MarkaziText_400Regular",
     fontSize: 40,
+    marginTop: -10,
   },
   leadText: {
     fontFamily: "Karla_500Medium",
@@ -190,6 +206,29 @@ const Styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "right",
     marginBottom: 20,
+  },
+  homeHeroSection: {
+    flex: 0.35,
+    width: "100%",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignContent: "flex-start",
+    alignItems: "flex-start",
+    backgroundColor: "#495E57",
+    paddingHorizontal: 15,
+    paddingTop: 5,
+    paddingBottom: 10,
+  },
+  homeMenuSection: {
+    flex: 0.55,
+    width: "100%",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignContent: "flex-start",
+    alignItems: "flex-start",
+    backgroundColor: "#EDEFEE",
+    paddingHorizontal: 15,
+    paddingTop: 5,
   },
 });
 
