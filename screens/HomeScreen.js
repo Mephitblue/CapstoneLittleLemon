@@ -1,18 +1,13 @@
 import { useContext, useState, useRef, useEffect } from "react";
-import {
-  Text,
-  View,
-  Pressable,
-  Image,
-  ScrollView,
-  FlatList,
-} from "react-native";
+import { Text, View, Pressable, Image, FlatList } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Checkbox from "expo-checkbox";
 import { AppContext } from "../App";
 import Styles from "../Styles";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as SQLite from "expo-sqlite";
+
+const db = await SQLite.openDatabaseAsync("little_lemon.db");
 
 const HomeScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -27,6 +22,66 @@ const HomeScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState("");
   const [menu, setMenu] = useState([]);
   const styles = Styles;
+
+  /*   const createTable = () => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "CREATE TABLE IF NOT EXISTS menu_items (id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT, description TEXT, image TEXT, name TEXT, price REAL);",
+        [],
+        () => {
+          console.log("Table created successfully");
+        },
+        (_, error) => {
+          console.log("Error creating table: " + error.message);
+        }
+      );
+    });
+  }; */
+
+  /*   const checkAndPopulateMenuItems = async () => {
+    try {
+      db.transaction((tx) => {
+        tx.executeSql("SELECT * FROM menu_items", [], (_, { rows }) => {
+          if (rows.length === 0) {
+            const data = getMenuItemsFromAPI();
+            data.menu.forEach((item) => {
+              tx.executeSql(
+                "INSERT INTO menu_items (category, description, image, name, price) VALUES (?, ?, ?, ?, ?);",
+                [
+                  item.category,
+                  item.description,
+                  item.image,
+                  item.name,
+                  item.price,
+                ],
+                () => {
+                  console.log("Data inserted successfully");
+                },
+                (_, error) => {
+                  console.log("Error inserting data: " + error.message);
+                }
+              );
+            });
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Fetch error: " + error.message);
+    }
+  }; */
+
+  /*   const getMenuItemsFromAPI = async () => {
+    try {
+      const response = await fetch(
+        "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json"
+      );
+      return await response.json();
+      setMenu(json.menu);
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }; */
 
   const getProfileData = async () => {
     try {
@@ -68,18 +123,23 @@ const HomeScreen = ({ navigation }) => {
     } catch (e) {}
   };
 
-  const getMenuItemsFronAPI = async () => {
+  const getMenuItemsFromAPINoDB = async () => {
     try {
       const response = await fetch(
         "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json"
       );
       const json = await response.json();
-      console.log(json);
       setMenu(json.menu);
     } catch (e) {
       console.log(e);
     }
   };
+
+  useEffect(() => {
+    getProfileData();
+    //checkAndPopulateMenuItems();
+    getMenuItemsFronAPInoDB();
+  }, []);
 
   const Item = ({ name, price, description, category, image }) => (
     <View
@@ -114,11 +174,6 @@ const HomeScreen = ({ navigation }) => {
       }
     />
   );
-
-  useEffect(() => {
-    getProfileData();
-    getMenuItemsFronAPI();
-  }, []);
 
   return (
     <SafeAreaView style={[styles.container]}>
