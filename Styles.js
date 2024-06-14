@@ -221,7 +221,7 @@ const Styles = StyleSheet.create({
   },
   homeMenuSection: {
     flex: 0.55,
-    width: "100%",
+
     flexDirection: "column",
     justifyContent: "flex-start",
     alignContent: "flex-start",

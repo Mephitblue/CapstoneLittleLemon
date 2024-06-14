@@ -7,7 +7,7 @@ import Styles from "../Styles";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as SQLite from "expo-sqlite";
 
-const db = await SQLite.openDatabaseAsync("little_lemon.db");
+const db = SQLite.openDatabaseSync("little_lemon");
 
 const HomeScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -21,10 +21,11 @@ const HomeScreen = ({ navigation }) => {
   const [notificationNewsletter, setNotificationNewsletter] = useState(false);
   const [imageUri, setImageUri] = useState("");
   const [menu, setMenu] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const styles = Styles;
 
   /*   const createTable = () => {
-    db.transaction((tx) => {
+    db.withTransactionSync((tx) => {
       tx.executeSql(
         "CREATE TABLE IF NOT EXISTS menu_items (id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT, description TEXT, image TEXT, name TEXT, price REAL);",
         [],
@@ -38,50 +39,63 @@ const HomeScreen = ({ navigation }) => {
     });
   }; */
 
-  /*   const checkAndPopulateMenuItems = async () => {
+  const createTable = () => {
     try {
-      db.transaction((tx) => {
-        tx.executeSql("SELECT * FROM menu_items", [], (_, { rows }) => {
-          if (rows.length === 0) {
-            const data = getMenuItemsFromAPI();
-            data.menu.forEach((item) => {
-              tx.executeSql(
-                "INSERT INTO menu_items (category, description, image, name, price) VALUES (?, ?, ?, ?, ?);",
-                [
-                  item.category,
-                  item.description,
-                  item.image,
-                  item.name,
-                  item.price,
-                ],
-                () => {
-                  console.log("Data inserted successfully");
-                },
-                (_, error) => {
-                  console.log("Error inserting data: " + error.message);
-                }
-              );
-            });
-          }
-        });
-      });
+      db.execSync(
+        "CREATE TABLE IF NOT EXISTS menu_items (id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT, description TEXT, image TEXT, name TEXT, price REAL);"
+      );
+      console.log("Table created successfully");
     } catch (error) {
-      console.error("Fetch error: " + error.message);
+      console.log("Error creating table: " + error.message);
     }
-  }; */
+  };
 
-  /*   const getMenuItemsFromAPI = async () => {
+  const checkAndPopulateMenuItems = async () => {
+    try {
+      const menuItemsExist = db.getAllSync(
+        "SELECT EXISTS (SELECT * FROM menu_items)"
+      );
+      const menuItems = db.getAllSync("SELECT * FROM menu_items");
+      console.log(menuItems.length);
+      if (menuItems.length == 0) {
+        console.log("No menu items found");
+        const data = await getMenuItemsFromAPI();
+        console.log("Returned from getMenuItems: ", data);
+        setMenu(data.menu);
+        data.menu.forEach((item) => {
+          console.log(item.category);
+          console.log(item.description);
+          db.runSync(
+            "INSERT INTO menu_items (category, description, image, name, price) VALUES (?, ?, ?, ?, ?)",
+            item.category,
+            item.description,
+            item.image,
+            item.name,
+            item.price
+          );
+        });
+      } else {
+        console.log("Menu items found");
+        setMenu(menuItems);
+      }
+    } catch (error) {
+      console.log("Error checking table: " + error.message);
+    }
+  };
+
+  const getMenuItemsFromAPI = async () => {
     try {
       const response = await fetch(
         "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json"
       );
-      return await response.json();
-      setMenu(json.menu);
+      const json = await response.json();
+      console.log(json);
+      return json;
     } catch (e) {
       console.log(e);
       return null;
     }
-  }; */
+  };
 
   const getProfileData = async () => {
     try {
@@ -123,22 +137,10 @@ const HomeScreen = ({ navigation }) => {
     } catch (e) {}
   };
 
-  const getMenuItemsFromAPINoDB = async () => {
-    try {
-      const response = await fetch(
-        "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json"
-      );
-      const json = await response.json();
-      setMenu(json.menu);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   useEffect(() => {
     getProfileData();
-    //checkAndPopulateMenuItems();
-    getMenuItemsFronAPInoDB();
+    createTable();
+    checkAndPopulateMenuItems();
   }, []);
 
   const Item = ({ name, price, description, category, image }) => (
@@ -152,19 +154,30 @@ const HomeScreen = ({ navigation }) => {
         borderBottomColor: "lightgrey",
       }}
     >
-      <View style={{ width: "85%" }}>
-        <Text>{name}</Text>
-        <Text>{description}</Text>
-        <Text>$ {price}</Text>
+      <View style={{ width: "85%", padding: 3, paddingTop: 0 }}>
+        <Text style={[styles.sectionTitle, { marginBottom: 10 }]}>{name}</Text>
+        <Text style={[styles.paragraphText]}>{description}</Text>
+        <Text style={[styles.cardTitle, styles.textPrimaryColor1]}>
+          ${price}
+        </Text>
       </View>
-      <Image source={{ uri: image }} style={{ width: 60, height: 60 }} />
+      <Image
+        source={{ uri: image }}
+        style={{
+          width: 60,
+          height: 60,
+          padding: 10,
+          marginTop: 20,
+          marginLeft: 2,
+        }}
+      />
     </View>
   );
 
   const renderItem = ({ item }) => (
     <Item
       name={item.name}
-      price={item.price}
+      price={item.price.toFixed(2)}
       description={item.description}
       category={item.category}
       image={
@@ -283,7 +296,10 @@ const HomeScreen = ({ navigation }) => {
       </View>
       <View style={[styles.homeMenuSection]}>
         <Text
-          style={[styles.sectionTitle, { paddingTop: 20, paddingBottom: 10 }]}
+          style={[
+            styles.sectionTitle,
+            { paddingTop: 20, paddingBottom: 10, marginLeft: 12 },
+          ]}
         >
           ORDER FOR DELIVERY!
         </Text>
