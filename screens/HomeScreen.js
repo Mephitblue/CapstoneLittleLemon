@@ -1,5 +1,12 @@
 import { useContext, useState, useRef, useEffect } from "react";
-import { Text, View, Pressable, Image, FlatList } from "react-native";
+import {
+  Text,
+  View,
+  Pressable,
+  Image,
+  FlatList,
+  TextInput,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppContext } from "../App";
@@ -235,7 +242,7 @@ const HomeScreen = ({ navigation }) => {
           )}
         </Pressable>
       </View>
-      <View style={[styles.homeHeroSection]}>
+      <View style={[styles.homeHeroSection, { minHeight: 30 }]}>
         <Text style={[styles.displayTitle, styles.textPrimaryColor2]}>
           Little Lemon
         </Text>
@@ -292,6 +299,21 @@ const HomeScreen = ({ navigation }) => {
               accessible={true}
             />
           </View>
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "flex-start" }}>
+          <TextInput
+            style={[
+              styles.inputStyle,
+              { width: "100%", marginLeft: 0, justifyContent: "center" },
+            ]}
+          >
+            <Ionicons
+              name="search"
+              size={20}
+              color="black"
+              style={{ paddingRight: 10, marginRight: 10 }}
+            />
+          </TextInput>
         </View>
       </View>
       <View style={[styles.homeMenuSection]}>

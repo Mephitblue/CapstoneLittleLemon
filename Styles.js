@@ -217,7 +217,7 @@ const Styles = StyleSheet.create({
     backgroundColor: "#495E57",
     paddingHorizontal: 15,
     paddingTop: 5,
-    paddingBottom: 10,
+    paddingBottom: 15,
   },
   homeMenuSection: {
     flex: 0.55,
