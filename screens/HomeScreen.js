@@ -36,6 +36,7 @@ const HomeScreen = ({ navigation }) => {
   const [filterSelections, setFilterSelections] = useState(
     categories.map(() => false)
   );
+  const [query, setQuery] = useState("");
 
   const createTable = () => {
     try {
@@ -145,7 +146,7 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     filterMenuItems();
     console.log("Use effect ran");
-  }, [filterSelections]);
+  }, [filterSelections, query]);
 
   const handleSelectedCategoriesChange = async (index) => {
     const arrayCopy = [...filterSelections];
@@ -180,12 +181,26 @@ const HomeScreen = ({ navigation }) => {
           "SELECT * FROM menu_items where category in (?)",
           activeCategoriesString
         ); */
-
-      const menuItems = db.getAllSync(
-        "SELECT * FROM menu_items where category in " + activeCategoriesString
-      );
-      console.log("Menu items: ", menuItems);
-      setMenu(menuItems);
+      if (query === "") {
+        const menuItems = db.getAllSync(
+          "SELECT * FROM menu_items where category in " + activeCategoriesString
+        );
+        console.log("Menu items: ", menuItems);
+        setMenu(menuItems);
+      } else {
+        console.log("Query: ", query);
+        const menuItems = db.getAllSync(
+          "SELECT * FROM menu_items where category in " +
+            activeCategoriesString +
+            " and name like '%" +
+            query +
+            "%' or description like '%" +
+            query +
+            "%'"
+        );
+        console.log("Menu items: ", menuItems);
+        setMenu(menuItems);
+      }
       console.log("Categories selected: ", activeCategories);
     } catch (error) {
       console.log("Error updating menu items: " + error.message);
@@ -382,29 +397,30 @@ const HomeScreen = ({ navigation }) => {
             {
               flexDirection: "row",
               justifyContent: "center",
+              alignItems: "center",
               width: "100%",
               paddingBottom: 10,
             },
           ]}
         >
+          <Ionicons
+            name="search"
+            size={24}
+            color="black"
+            style={{ paddingLeft: 5, marginLeft: 5 }}
+          />
           <TextInput
             style={[
               styles.inputStyle,
               {
-                width: "95%",
-                paddingLeft: 10,
+                width: "85%",
+                height: 45,
                 paddingBottom: 10,
                 justifyContent: "center",
               },
             ]}
-          >
-            <Ionicons
-              name="search"
-              size={20}
-              color="black"
-              style={{ paddingRight: 10, marginRight: 10 }}
-            />
-          </TextInput>
+            onChangeText={(text) => setQuery(text)}
+          ></TextInput>
         </View>
         <Text
           style={[
