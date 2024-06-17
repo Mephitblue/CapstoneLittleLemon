@@ -5,6 +5,7 @@ import {
   Pressable,
   Image,
   FlatList,
+  ScrollView,
   TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,23 +29,13 @@ const HomeScreen = ({ navigation }) => {
   const [notificationNewsletter, setNotificationNewsletter] = useState(false);
   const [imageUri, setImageUri] = useState("");
   const [menu, setMenu] = useState([]);
+  const [filterSelectionsUpdated, setFilterSelectionsUpdated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const styles = Styles;
-
-  /*   const createTable = () => {
-    db.withTransactionSync((tx) => {
-      tx.executeSql(
-        "CREATE TABLE IF NOT EXISTS menu_items (id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT, description TEXT, image TEXT, name TEXT, price REAL);",
-        [],
-        () => {
-          console.log("Table created successfully");
-        },
-        (_, error) => {
-          console.log("Error creating table: " + error.message);
-        }
-      );
-    });
-  }; */
+  const categories = ["Starters", "Mains", "Desserts", "Drinks", "Specials"];
+  const [filterSelections, setFilterSelections] = useState(
+    categories.map(() => false)
+  );
 
   const createTable = () => {
     try {
@@ -84,6 +75,7 @@ const HomeScreen = ({ navigation }) => {
       } else {
         console.log("Menu items found");
         setMenu(menuItems);
+        //setCategories(categories);
       }
     } catch (error) {
       console.log("Error checking table: " + error.message);
@@ -149,6 +141,88 @@ const HomeScreen = ({ navigation }) => {
     createTable();
     checkAndPopulateMenuItems();
   }, []);
+
+  useEffect(() => {
+    filterMenuItems();
+    console.log("Use effect ran");
+  }, [filterSelections]);
+
+  const handleSelectedCategoriesChange = async (index) => {
+    const arrayCopy = [...filterSelections];
+    arrayCopy[index] = !filterSelections[index];
+    setFilterSelections(arrayCopy);
+    setFilterSelectionsUpdated(true);
+    console.log(filterSelections);
+  };
+
+  const filterMenuItems = async () => {
+    try {
+      let activeCategories = [];
+      if (filterSelections.every((item) => item === false)) {
+        console.log("All categories selected");
+        activeCategories = categories;
+      } else {
+        /*       const menuItems = db.getAllSync(
+        "SELECT * FROM menu_items WHERE category in (?)",
+        activeCategories
+      );
+      setMenu(menuItems); */
+        activeCategories = categories.filter((category, index) => {
+          if (filterSelections[index] === true) {
+            return category;
+          }
+        });
+      }
+      const activeCategoriesString =
+        "('" + activeCategories.join("','").toLowerCase() + "')";
+      console.log("Active categories: ", activeCategoriesString);
+      /*         const menuItems = db.getAllSync(
+          "SELECT * FROM menu_items where category in (?)",
+          activeCategoriesString
+        ); */
+
+      const menuItems = db.getAllSync(
+        "SELECT * FROM menu_items where category in " + activeCategoriesString
+      );
+      console.log("Menu items: ", menuItems);
+      setMenu(menuItems);
+      console.log("Categories selected: ", activeCategories);
+    } catch (error) {
+      console.log("Error updating menu items: " + error.message);
+    }
+    setFilterSelectionsUpdated(false);
+  };
+
+  const CategoryFilters = ({ onChange, filterCategories, selections }) => {
+    return (
+      <View style={{ width: "100%", flexDirection: "row" }}>
+        {filterCategories.map((category, index) => (
+          <Pressable
+            key={index}
+            onPress={() => {
+              onChange(index);
+            }}
+            style={
+              selections[index]
+                ? styles.buttonStyleMenuCategoryActive
+                : styles.buttonStyleMenuCategory
+            }
+          >
+            <Text
+              style={[
+                styles.leadText,
+                selections[index]
+                  ? styles.textPrimaryColor2
+                  : styles.textPrimaryColor1,
+              ]}
+            >
+              {category}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    );
+  };
 
   const Item = ({ name, price, description, category, image }) => (
     <View
@@ -300,11 +374,28 @@ const HomeScreen = ({ navigation }) => {
             />
           </View>
         </View>
-        <View style={{ flexDirection: "row", justifyContent: "flex-start" }}>
+      </View>
+      <View style={[styles.homeMenuSection]}>
+        <View
+          style={[
+            styles.primaryBackgroundColor1,
+            {
+              flexDirection: "row",
+              justifyContent: "center",
+              width: "100%",
+              paddingBottom: 10,
+            },
+          ]}
+        >
           <TextInput
             style={[
               styles.inputStyle,
-              { width: "100%", marginLeft: 0, justifyContent: "center" },
+              {
+                width: "95%",
+                paddingLeft: 10,
+                paddingBottom: 10,
+                justifyContent: "center",
+              },
             ]}
           >
             <Ionicons
@@ -315,8 +406,6 @@ const HomeScreen = ({ navigation }) => {
             />
           </TextInput>
         </View>
-      </View>
-      <View style={[styles.homeMenuSection]}>
         <Text
           style={[
             styles.sectionTitle,
@@ -332,26 +421,13 @@ const HomeScreen = ({ navigation }) => {
             paddingBottom: 15,
           }}
         >
-          <Pressable style={[styles.buttonStyleMenuCategory]}>
-            <Text style={[styles.leadText, styles.textPrimaryColor1]}>
-              Starters
-            </Text>
-          </Pressable>
-          <Pressable style={[styles.buttonStyleMenuCategory]}>
-            <Text style={[styles.leadText, styles.textPrimaryColor1]}>
-              Mains
-            </Text>
-          </Pressable>
-          <Pressable style={[styles.buttonStyleMenuCategory]}>
-            <Text style={[styles.leadText, styles.textPrimaryColor1]}>
-              Desserts
-            </Text>
-          </Pressable>
-          <Pressable style={[styles.buttonStyleMenuCategory]}>
-            <Text style={[styles.leadText, styles.textPrimaryColor1]}>
-              Drinks
-            </Text>
-          </Pressable>
+          <ScrollView horizontal={true} style={{ width: "100%" }}>
+            <CategoryFilters
+              selections={filterSelections}
+              onChange={handleSelectedCategoriesChange}
+              filterCategories={categories}
+            />
+          </ScrollView>
         </View>
         <View
           style={{

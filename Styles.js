@@ -126,6 +126,15 @@ const Styles = StyleSheet.create({
     margin: 10,
     backgroundColor: "#bcccc7",
   },
+
+  buttonStyleMenuCategoryActive: {
+    borderRadius: 16,
+    alignItems: "center",
+    alignContent: "center",
+    padding: 10,
+    margin: 10,
+    backgroundColor: "#495E57",
+  },
   textPrimaryColor1: {
     color: "#495E57",
   },
@@ -208,7 +217,7 @@ const Styles = StyleSheet.create({
     marginBottom: 20,
   },
   homeHeroSection: {
-    flex: 0.35,
+    flex: 0.3,
     width: "100%",
     flexDirection: "column",
     justifyContent: "flex-start",
@@ -221,14 +230,11 @@ const Styles = StyleSheet.create({
   },
   homeMenuSection: {
     flex: 0.55,
-
     flexDirection: "column",
     justifyContent: "flex-start",
     alignContent: "flex-start",
     alignItems: "flex-start",
     backgroundColor: "#EDEFEE",
-    paddingHorizontal: 15,
-    paddingTop: 5,
   },
 });
 
