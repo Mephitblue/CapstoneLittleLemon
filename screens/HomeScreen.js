@@ -1,4 +1,4 @@
-import { useContext, useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Text,
   View,
@@ -8,9 +8,9 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AppContext } from "../App";
 import Styles from "../Styles";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as SQLite from "expo-sqlite";
@@ -18,18 +18,10 @@ import * as SQLite from "expo-sqlite";
 const db = SQLite.openDatabaseSync("little_lemon");
 
 const HomeScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [notificationOrderStatus, setNotificationOrderStatus] = useState(false);
-  const [notificationPasswordChanges, setNotificationPasswordChanges] =
-    useState(false);
-  const [notificationOffers, setNotificationOffers] = useState(false);
-  const [notificationNewsletter, setNotificationNewsletter] = useState(false);
   const [imageUri, setImageUri] = useState("");
   const [menu, setMenu] = useState([]);
-  const [filterSelectionsUpdated, setFilterSelectionsUpdated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const styles = Styles;
   const categories = ["Starters", "Mains", "Desserts", "Drinks", "Specials"];
@@ -37,6 +29,7 @@ const HomeScreen = ({ navigation }) => {
     categories.map(() => false)
   );
   const [query, setQuery] = useState("");
+  const isFocused = useIsFocused();
 
   const createTable = () => {
     try {
@@ -76,7 +69,6 @@ const HomeScreen = ({ navigation }) => {
       } else {
         console.log("Menu items found");
         setMenu(menuItems);
-        //setCategories(categories);
       }
     } catch (error) {
       console.log("Error checking table: " + error.message);
@@ -99,40 +91,15 @@ const HomeScreen = ({ navigation }) => {
 
   const getProfileData = async () => {
     try {
-      const email = await AsyncStorage.getItem("email");
       const firstName = await AsyncStorage.getItem("firstName");
       const lastName = await AsyncStorage.getItem("lastName");
-      const phoneNumber = await AsyncStorage.getItem("phoneNumber");
-      const notificationOrderStatus = await AsyncStorage.getItem(
-        "notificationOrderStatus"
-      );
-      const notificationPasswordChanges = await AsyncStorage.getItem(
-        "notificationPasswordChanges"
-      );
-      const notificationOffers = await AsyncStorage.getItem(
-        "notificationOffers"
-      );
-      const notificationNewsletter = await AsyncStorage.getItem(
-        "notificationNewsletter"
-      );
       const imageUri = await AsyncStorage.getItem("imageUri");
-      setEmail(email);
       setFirstName(firstName);
       if (lastName === null) {
         setLastName("");
       } else {
         setLastName(lastName);
       }
-      if (phoneNumber === null) {
-        setPhoneNumber("");
-      } else {
-        setPhoneNumber(phoneNumber);
-      }
-      setPhoneNumber(phoneNumber);
-      setNotificationOrderStatus(JSON.parse(notificationOrderStatus));
-      setNotificationPasswordChanges(JSON.parse(notificationPasswordChanges));
-      setNotificationOffers(JSON.parse(notificationOffers));
-      setNotificationNewsletter(JSON.parse(notificationNewsletter));
       setImageUri(imageUri);
     } catch (e) {}
   };
@@ -141,7 +108,7 @@ const HomeScreen = ({ navigation }) => {
     getProfileData();
     createTable();
     checkAndPopulateMenuItems();
-  }, []);
+  }, [isFocused]);
 
   useEffect(() => {
     filterMenuItems();
@@ -152,7 +119,6 @@ const HomeScreen = ({ navigation }) => {
     const arrayCopy = [...filterSelections];
     arrayCopy[index] = !filterSelections[index];
     setFilterSelections(arrayCopy);
-    setFilterSelectionsUpdated(true);
     console.log(filterSelections);
   };
 
@@ -163,11 +129,6 @@ const HomeScreen = ({ navigation }) => {
         console.log("All categories selected");
         activeCategories = categories;
       } else {
-        /*       const menuItems = db.getAllSync(
-        "SELECT * FROM menu_items WHERE category in (?)",
-        activeCategories
-      );
-      setMenu(menuItems); */
         activeCategories = categories.filter((category, index) => {
           if (filterSelections[index] === true) {
             return category;
@@ -177,10 +138,6 @@ const HomeScreen = ({ navigation }) => {
       const activeCategoriesString =
         "('" + activeCategories.join("','").toLowerCase() + "')";
       console.log("Active categories: ", activeCategoriesString);
-      /*         const menuItems = db.getAllSync(
-          "SELECT * FROM menu_items where category in (?)",
-          activeCategoriesString
-        ); */
       if (query === "") {
         const menuItems = db.getAllSync(
           "SELECT * FROM menu_items where category in " + activeCategoriesString
@@ -205,7 +162,6 @@ const HomeScreen = ({ navigation }) => {
     } catch (error) {
       console.log("Error updating menu items: " + error.message);
     }
-    setFilterSelectionsUpdated(false);
   };
 
   const CategoryFilters = ({ onChange, filterCategories, selections }) => {
@@ -239,7 +195,7 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
-  const Item = ({ name, price, description, category, image }) => (
+  const Item = ({ name, price, description, image }) => (
     <View
       flexDirection="row"
       alignItems="flex-start"

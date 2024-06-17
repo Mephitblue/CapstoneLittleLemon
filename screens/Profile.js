@@ -38,10 +38,6 @@ const Profile = ({ navigation }) => {
   const [notificationOffers, setNotificationOffers] = useState(false);
   const [notificationNewsletter, setNotificationNewsletter] = useState(false);
   const [imageUri, setImageUri] = useState("");
-  const orderStatusRef = useRef();
-  const passwordChangesRef = useRef();
-  const offersRef = useRef();
-  const newsletterRef = useRef();
   const emailRef = useRef();
   const firstNameRef = useRef();
   const lastNameRef = useRef();
@@ -229,7 +225,7 @@ const Profile = ({ navigation }) => {
                 ],
               ]}
               onPress={() => {
-                setImageUri(null);
+                setImageUri("");
               }}
             >
               <Text
@@ -512,7 +508,7 @@ const updateData = async (
       "notificationNewsletter",
       JSON.stringify(notificationNewsletter)
     );
-    if (imageUri) {
+    if (imageUri !== null) {
       await AsyncStorage.setItem("imageUri", imageUri);
     }
   } catch (e) {
