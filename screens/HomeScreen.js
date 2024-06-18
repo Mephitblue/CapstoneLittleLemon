@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Text,
   View,
@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Styles from "../Styles";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as SQLite from "expo-sqlite";
+import debounce from "lodash.debounce";
 
 const db = SQLite.openDatabaseSync("little_lemon");
 
@@ -29,7 +30,17 @@ const HomeScreen = ({ navigation }) => {
     categories.map(() => false)
   );
   const [query, setQuery] = useState("");
+  const [searchBarText, setSearchBarText] = useState("");
   const isFocused = useIsFocused();
+
+  const lookup = useCallback((q) => {
+    setQuery(q);
+  }, []);
+  const debouncedLookup = useMemo(() => debounce(lookup, 500), [lookup]);
+  const handleSearchChange = (text) => {
+    setSearchBarText(text);
+    debouncedLookup(text);
+  };
 
   const createTable = () => {
     try {
@@ -375,7 +386,8 @@ const HomeScreen = ({ navigation }) => {
                 justifyContent: "center",
               },
             ]}
-            onChangeText={(text) => setQuery(text)}
+            onChangeText={(text) => handleSearchChange(text)}
+            value={searchBarText}
           ></TextInput>
         </View>
         <Text
